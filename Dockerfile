@@ -25,14 +25,21 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy seluruh file project
+# Copy file composer terlebih dahulu agar cache dependencies optimal
+COPY composer.json composer.lock ./
+
+# Copy seluruh sisa file project
 COPY . /var/www/html
 
-# Install dependencies Laravel menggunakan Composer
-RUN composer install --no-dev --optimize-autoloader
+# Buat folder storage dan bootstrap/cache jika belum ada, lalu install dependencies
+RUN mkdir -p /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/views \
+    /var/www/html/storage/framework/cache \
+    && composer install --no-dev --optimize-autoloader --no-interaction
 
 # Atur permission untuk storage dan bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Expose port Apache
 EXPOSE 80
