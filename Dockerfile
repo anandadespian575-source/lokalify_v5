@@ -14,6 +14,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql pdo_pgsql zip gd opcache
 
+# Install Composer secara global
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # Ubah Document Root Apache ke folder public Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
@@ -25,8 +28,11 @@ WORKDIR /var/www/html
 # Copy seluruh file project
 COPY . /var/www/html
 
+# Install dependencies Laravel menggunakan Composer
+RUN composer install --no-dev --optimize-autoloader
+
 # Atur permission untuk storage dan bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Expose port Apache
-EXPOSE 8080
+EXPOSE 80
