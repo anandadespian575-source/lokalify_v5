@@ -1,11 +1,12 @@
 FROM php:8.2-apache
 
-# Install ekstensi sistem & PHP
+# Install ekstensi sistem & PHP (termasuk libpq-dev untuk PostgreSQL)
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libzip-dev \
+    libpq-dev \
     zip \
     unzip \
     git \
