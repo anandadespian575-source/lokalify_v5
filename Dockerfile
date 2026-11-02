@@ -16,4 +16,17 @@ RUN apt-get update && apt-get install -y \
 
 # Ubah Document Root Apache ke folder public Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-V
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy seluruh file project
+COPY . /var/www/html
+
+# Atur permission untuk storage dan bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Expose port Apache
+EXPOSE 8080
